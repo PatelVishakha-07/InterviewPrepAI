@@ -1,0 +1,85 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block page_title %}History{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/history.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="history-header">
+  <div>
+    <h1>📜 Interview History</h1>
+    <p>Review your previous interview sessions.</p>
+  </div>
+  <div class="history-count">
+    {{ sessions|length }}
+    <span>Total Sessions</span>
+  </div>
+</div>
+
+
+{% if sessions %}
+
+<div class="session-grid">
+
+  {% for session in sessions %}
+  <div class="session-card">
+
+    <div class="card-header">
+      <div>
+        <h3>{{ session.role }}</h3>
+        <small>
+          <i class="fa-regular fa-calendar"></i>
+          {{ session.created_at|date:"d M Y, h:i A" }}
+        </small>
+      </div>
+      <span class="difficulty {{ session.difficulty|lower }}">
+        {{ session.difficulty }}
+      </span>
+    </div>
+
+    <div class="card-body">
+      <div class="info-row">
+        <i class="fa-solid fa-circle-question"></i>
+        <span>{{ session.no_of_ques }} Questions</span>
+      </div>
+      <div class="info-row" style="margin-top:8px;">
+        <i class="fa-solid fa-list"></i>
+        <span>{{ session.get_ques_type_display }}</span>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <a href="{% url 'session_detail' session.id %}" class="view-btn">
+        <i class="fa-solid fa-eye"></i>
+        View
+      </a>
+
+      <a href="{% url 'delete_session' session.id %}"
+         class="delete-btn"
+         onclick="return confirm('Delete this session?')">
+        <i class="fa-solid fa-trash"></i>
+        Delete
+      </a>
+    </div>
+
+  </div>
+  {% endfor %}
+
+</div>
+
+{% else %}
+
+<div class="empty-state">
+  <i class="fa-regular fa-folder-open"></i>
+  <h2>No Sessions Found</h2>
+  <p>Generate interview questions to start building your history.</p>
+  <a href="{% url 'generate' %}" class="start-btn">Generate Questions</a>
+</div>
+
+{% endif %}
+
+{% endblock %}

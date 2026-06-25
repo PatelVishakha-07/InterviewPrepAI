@@ -1,0 +1,133 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %} InterviewPrepAI {% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    {% block extra_css %}{% endblock %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+
+    <div class="logo">
+        <div class="logo-icon">🤖</div>
+        <h2>AI Interview</h2>
+        <p>Question Generator</p>
+    </div>
+
+    <p class="nav-label">Menu</p>
+
+    <ul>
+        <li>
+            <a href="{% url 'dashboard' %}">
+                <i class="fa-solid fa-house"></i>
+                Dashboard
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'generate' %}">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                Generate
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'history' %}">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                History
+            </a>
+        </li>
+    </ul>
+
+    <div class="sidebar-bottom">
+        <ul>
+            <li class="logout">
+                <a href="{% url 'logout' %}">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+
+</div>
+
+<!-- Main -->
+<div class="main">
+
+    <!-- Topbar -->
+    <div class="topbar">
+
+        <div class="page-title">
+            <h2>{% block page_title %}{% endblock %}</h2>
+        </div>
+
+        <div class="topbar-right">
+
+            <div class="notification">
+                <i class="fa-regular fa-bell"></i>
+            </div>
+
+            <div class="profile-dropdown">
+
+                <div class="profile-card" id="profileBtn">
+                    <div class="profile-details">
+                        <h4>{{ request.user.first_name }}</h4>
+                        <p>{{ request.user.email }}</p>
+                    </div>
+                    {% if request.user.profile.profile_picture %}
+                        <img src="{{ request.user.profile.profile_picture.url }}" class="avatar-img">
+                    {% else %}
+                        <div class="avatar">{{ request.user.first_name|first|upper }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="dropdown-menu" id="profileMenu">
+                    <a href="{% url 'profile' %}">
+                        <i class="fa-regular fa-user"></i>
+                        View Profile
+                    </a>
+                    <a href="{% url 'change_profile_pic' %}">
+                        <i class="fa-solid fa-camera"></i>
+                        Change Picture
+                    </a>
+                    <a href="{% url 'logout' %}">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        Logout
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    {% block content %}{% endblock %}
+
+</div>
+
+<script>
+    const profileBtn = document.getElementById("profileBtn");
+    const profileMenu = document.getElementById("profileMenu");
+
+    profileBtn.addEventListener("click", function(e){
+        e.stopPropagation();
+        profileMenu.classList.toggle("show");
+    });
+
+    document.addEventListener("click", function(){
+        profileMenu.classList.remove("show");
+    });
+
+    // Mark active nav link
+    const links = document.querySelectorAll(".sidebar ul li a");
+    links.forEach(link => {
+        if(link.href === window.location.href){
+            link.classList.add("active");
+        }
+    });
+</script>
+
+</body>
+</html>

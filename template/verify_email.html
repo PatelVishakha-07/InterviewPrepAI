@@ -1,0 +1,151 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verify Email – AI Interview</title>
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <style>
+        .otp-group{
+            display:flex; gap:10px; justify-content:center; margin-bottom:24px;
+        }
+        .otp-group input{
+            width:52px; height:58px; text-align:center;
+            font-size:22px; font-weight:700;
+            border:2px solid #e2e8f0; border-radius:14px; outline:none;
+            color:#0f172a; background:#f8fafc;
+            font-family:'Inter',sans-serif; transition:.2s;
+        }
+        .otp-group input:focus{
+            border-color:#2563eb; background:#fff;
+            box-shadow:0 0 0 3px rgba(37,99,235,.1);
+        }
+        .otp-group input.filled{
+            border-color:#7c3aed; background:#faf5ff;
+        }
+        .email-badge{
+            background:#eff6ff; color:#1d4ed8;
+            border:1px solid #bfdbfe;
+            padding:10px 18px; border-radius:20px;
+            font-size:14px; font-weight:600;
+            text-align:center; margin-bottom:26px;
+            word-break:break-all;
+            display:flex; align-items:center;
+            justify-content:center; gap:8px;
+        }
+        .resend-row{
+            text-align:center; margin-top:18px;
+            font-size:14px; color:#64748b;
+        }
+        .resend-row a{
+            color:#2563eb; font-weight:600; text-decoration:none;
+        }
+        .resend-row a:hover{ text-decoration:underline; }
+        .success{
+            background:#f0fdf4; color:#16a34a;
+            border:1px solid #bbf7d0;
+            padding:12px 16px; border-radius:12px;
+            margin-bottom:18px; font-size:13px; font-weight:500;
+            display:flex; align-items:center; gap:8px;
+        }
+        #hiddenOtp{ display:none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="logo">
+        <div class="icon-wrap">✉️</div>
+        <h1>Check Your Email</h1>
+        <p>We sent a 6-digit verification code to</p>
+    </div>
+
+    <div class="email-badge">
+        <i class="fa-regular fa-envelope"></i>
+        {{ email }}
+    </div>
+
+    {% if error %}
+    <div class="error">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        {{ error }}
+    </div>
+    {% endif %}
+
+    {% if success %}
+    <div class="success">
+        <i class="fa-solid fa-circle-check"></i>
+        {{ success }}
+    </div>
+    {% endif %}
+
+    <form method="POST" id="otpForm">
+        {% csrf_token %}
+
+        <div class="otp-group" id="otpBoxes">
+            <input type="text" maxlength="1" class="otp-box" inputmode="numeric" autocomplete="one-time-code">
+            <input type="text" maxlength="1" class="otp-box" inputmode="numeric">
+            <input type="text" maxlength="1" class="otp-box" inputmode="numeric">
+            <input type="text" maxlength="1" class="otp-box" inputmode="numeric">
+            <input type="text" maxlength="1" class="otp-box" inputmode="numeric">
+            <input type="text" maxlength="1" class="otp-box" inputmode="numeric">
+        </div>
+
+        <input type="hidden" name="otp" id="hiddenOtp">
+
+        <button class="btn" type="submit">
+            Verify &amp; Create Account &nbsp;<i class="fa-solid fa-arrow-right"></i>
+        </button>
+    </form>
+
+    <div class="resend-row">
+        Didn't receive a code?
+        <a href="{% url 'resend_otp' %}">Resend</a>
+    </div>
+
+    <div class="resend-row" style="margin-top:10px;">
+        Wrong email?
+        <a href="{% url 'register' %}">Go back</a>
+    </div>
+
+</div>
+
+<script>
+    const boxes = document.querySelectorAll(".otp-box");
+    const hidden = document.getElementById("hiddenOtp");
+    const form   = document.getElementById("otpForm");
+
+    boxes[0].focus();
+
+    boxes.forEach((box, i) => {
+        box.addEventListener("input", () => {
+            box.value = box.value.replace(/[^0-9]/g,"");
+            box.classList.toggle("filled", box.value !== "");
+            if(box.value && i < boxes.length - 1) boxes[i+1].focus();
+        });
+        box.addEventListener("keydown", e => {
+            if(e.key === "Backspace" && !box.value && i > 0){
+                boxes[i-1].focus();
+                boxes[i-1].classList.remove("filled");
+            }
+        });
+        box.addEventListener("paste", e => {
+            e.preventDefault();
+            const pasted = e.clipboardData.getData("text").replace(/[^0-9]/g,"").slice(0,6);
+            pasted.split("").forEach((c,j) => {
+                if(boxes[j]){ boxes[j].value = c; boxes[j].classList.add("filled"); }
+            });
+            boxes[Math.min(pasted.length, boxes.length-1)].focus();
+        });
+    });
+
+    form.addEventListener("submit", e => {
+        const otp = Array.from(boxes).map(b => b.value).join("");
+        if(otp.length < 6){ e.preventDefault(); return; }
+        hidden.value = otp;
+    });
+</script>
+
+</body>
+</html>

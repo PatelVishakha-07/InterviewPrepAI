@@ -1,0 +1,168 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block page_title %}Change Profile Picture{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+<style>
+    .pic-card{
+        max-width:520px;
+        background:white;
+        border-radius:22px;
+        padding:36px;
+        box-shadow:0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+        border:1px solid #f1f5f9;
+    }
+    .pic-card-header{
+        display:flex; align-items:center; gap:14px;
+        margin-bottom:30px; padding-bottom:22px;
+        border-bottom:1px solid #f1f5f9;
+    }
+    .pic-card-header-icon{
+        width:46px; height:46px;
+        border-radius:13px;
+        background:linear-gradient(135deg,#2563eb,#7c3aed);
+        color:white; font-size:18px;
+        display:flex; justify-content:center; align-items:center;
+        box-shadow:0 3px 12px rgba(37,99,235,.3);
+    }
+    .pic-card-header h2{ font-size:18px; font-weight:700; color:#0f172a; }
+    .pic-card-header p { font-size:13px; color:#64748b; margin-top:2px; }
+
+    .avatar-preview{
+        display:flex; flex-direction:column; align-items:center;
+        margin-bottom:28px; gap:12px;
+    }
+    .avatar-preview img{
+        width:110px; height:110px; border-radius:50%;
+        object-fit:cover;
+        border:4px solid #e0e7ff;
+        box-shadow:0 4px 16px rgba(37,99,235,.15);
+    }
+    .avatar-preview .default-letter{
+        width:110px; height:110px; border-radius:50%;
+        background:linear-gradient(135deg,#2563eb,#7c3aed);
+        color:white; font-size:42px; font-weight:800;
+        display:flex; justify-content:center; align-items:center;
+        box-shadow:0 4px 16px rgba(37,99,235,.25);
+    }
+    .avatar-label{
+        font-size:13px; color:#64748b; font-weight:500;
+    }
+    .file-upload-box{
+        border:2px dashed #e2e8f0; border-radius:14px;
+        padding:24px; text-align:center;
+        background:#f8fafc; margin-bottom:20px;
+        transition:.2s; cursor:pointer;
+    }
+    .file-upload-box:hover{ border-color:#2563eb; background:#eff6ff; }
+    .file-upload-box i{ font-size:28px; color:#94a3b8; margin-bottom:10px; }
+    .file-upload-box p{ font-size:13px; color:#64748b; margin-bottom:12px; }
+    .file-upload-box input[type="file"]{ display:none; }
+    .file-choose-btn{
+        display:inline-block;
+        background:#eff6ff; color:#2563eb;
+        border:1.5px solid #bfdbfe;
+        padding:8px 18px; border-radius:10px;
+        font-size:13px; font-weight:600; cursor:pointer;
+        transition:.2s;
+    }
+    .file-choose-btn:hover{ background:#dbeafe; }
+    .file-name{ font-size:12px; color:#64748b; margin-top:8px; }
+    .upload-btn{
+        width:100%;
+        padding:14px;
+        background:linear-gradient(135deg,#2563eb,#7c3aed);
+        color:white; border:none; border-radius:14px;
+        font-size:15px; font-weight:700; cursor:pointer;
+        font-family:'Inter',sans-serif;
+        display:flex; align-items:center; justify-content:center; gap:10px;
+        transition:.3s;
+        box-shadow:0 4px 15px rgba(37,99,235,.35);
+    }
+    .upload-btn:hover{ transform:translateY(-2px); box-shadow:0 8px 24px rgba(37,99,235,.45); }
+    .back-link{
+        display:flex; align-items:center; gap:6px;
+        color:#64748b; text-decoration:none; font-size:13px;
+        font-weight:500; margin-top:16px;
+    }
+    .back-link:hover{ color:#2563eb; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="pic-card">
+
+    <div class="pic-card-header">
+        <div class="pic-card-header-icon">
+            <i class="fa-solid fa-camera"></i>
+        </div>
+        <div>
+            <h2>Change Profile Picture</h2>
+            <p>Upload a new photo for your account</p>
+        </div>
+    </div>
+
+    <!-- Current avatar preview -->
+    <div class="avatar-preview">
+        {% if request.user.profile.profile_picture %}
+            <img src="{{ request.user.profile.profile_picture.url }}" id="previewImg">
+        {% else %}
+            <div class="default-letter" id="defaultLetter">
+                {{ request.user.first_name|first|upper }}
+            </div>
+            <img src="" id="previewImg" style="display:none;">
+        {% endif %}
+        <span class="avatar-label">Current Photo</span>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" id="uploadForm">
+        {% csrf_token %}
+
+        <div class="file-upload-box" onclick="document.getElementById('fileInput').click()">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <p>Click to choose a new photo</p>
+            <span class="file-choose-btn">Browse Files</span>
+            <div class="file-name" id="fileName">No file chosen</div>
+            {{ form.profile_picture }}
+        </div>
+
+        <button type="submit" class="upload-btn">
+            <i class="fa-solid fa-check"></i>
+            Save Profile Picture
+        </button>
+
+    </form>
+
+    <a href="{% url 'profile' %}" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i>
+        Back to Profile
+    </a>
+
+</div>
+
+<script>
+    const input    = document.querySelector('input[type="file"]');
+    const fileName = document.getElementById("fileName");
+    const preview  = document.getElementById("previewImg");
+    const defLetter = document.getElementById("defaultLetter");
+
+    input.id = "fileInput";
+
+    input.addEventListener("change", function(){
+        if(this.files && this.files[0]){
+            fileName.textContent = this.files[0].name;
+            const reader = new FileReader();
+            reader.onload = e => {
+                preview.src = e.target.result;
+                preview.style.display = "block";
+                if(defLetter) defLetter.style.display = "none";
+            };
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+</script>
+
+{% endblock %}

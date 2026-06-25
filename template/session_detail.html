@@ -1,0 +1,141 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block page_title %}Session Detail{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/session.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="session-header">
+  <h1>📋 Interview Session</h1>
+  <p>Generated on {{ session.created_at|date:"d M Y, h:i A" }}</p>
+</div>
+
+<!-- Info Cards -->
+<div class="info-grid">
+
+  <div class="info-box">
+    <div class="icon role"><i class="fa-solid fa-briefcase"></i></div>
+    <span>Role</span>
+    <h3>{{ session.role }}</h3>
+  </div>
+
+  <div class="info-box">
+    <div class="icon difficulty"><i class="fa-solid fa-bullseye"></i></div>
+    <span>Difficulty</span>
+    <h3>{{ session.difficulty }}</h3>
+  </div>
+
+  <div class="info-box">
+    <div class="icon question"><i class="fa-solid fa-circle-question"></i></div>
+    <span>Total Questions</span>
+    <h3>{{ session.no_of_ques }}</h3>
+  </div>
+
+  <div class="info-box">
+    <div class="icon role"><i class="fa-solid fa-list"></i></div>
+    <span>Type</span>
+    <h3>{{ session.get_ques_type_display }}</h3>
+  </div>
+
+</div>
+
+
+<!-- Questions Card -->
+<div class="question-card">
+
+  <div class="question-header">
+    <h2>Generated Questions</h2>
+    <div class="question-header-right">
+      <span class="question-count">{{ session.no_of_ques }} Questions</span>
+      <button class="toggle-answers-btn" onclick="toggleAllAnswers()">
+        <i class="fa-solid fa-eye" id="toggleIcon"></i>
+        <span id="toggleLabel">Show Answers</span>
+      </button>
+      <a href="{% url 'download_pdf' session.id %}" class="download-btn">
+        <i class="fa-solid fa-file-pdf"></i>
+        Download PDF
+      </a>
+    </div>
+  </div>
+
+  <div class="question-body">
+
+    {% if session.ques_type == "mcq" %}
+
+      {% for item in questions %}
+      <div class="mcq-item">
+
+        <div class="mcq-question">
+          <div class="mcq-num">{{ forloop.counter }}</div>
+          <div class="mcq-question-text">{{ item.question }}</div>
+        </div>
+
+        <div class="mcq-options">
+          {% for key, val in item.options.items %}
+            <div class="mcq-option {% if key == item.answer %}correct-option{% endif %}" data-key="{{ key }}">
+              <strong>{{ key }}.</strong> {{ val }}
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="mcq-answer-wrap" id="mcq-ans-{{ forloop.counter }}">
+          <div class="mcq-correct-label">✅ Correct Answer: {{ item.answer }}</div>
+          {% if item.explanation %}
+            <div class="mcq-explanation"><strong>Explanation:</strong> {{ item.explanation }}</div>
+          {% endif %}
+        </div>
+
+      </div>
+      {% endfor %}
+
+    {% else %}
+
+      {% for item in questions %}
+      <div class="qa-item">
+
+        <div class="qa-question">
+          <div class="qa-num">{{ forloop.counter }}</div>
+          <div class="qa-question-text">{{ item.question }}</div>
+        </div>
+
+        <div class="qa-answer-wrap" id="qa-ans-{{ forloop.counter }}">
+          <div class="qa-answer"><strong>Answer:</strong> {{ item.answer }}</div>
+          {% if item.explanation %}
+            <div class="qa-explanation"><strong>Explanation:</strong> {{ item.explanation }}</div>
+          {% endif %}
+        </div>
+
+      </div>
+      {% endfor %}
+
+    {% endif %}
+
+  </div>
+</div>
+
+<script>
+  let answersVisible = false;
+
+  function toggleAllAnswers() {
+    answersVisible = !answersVisible;
+
+    document.querySelectorAll('[id^="qa-ans-"], [id^="mcq-ans-"]').forEach(el => {
+      el.classList.toggle("show", answersVisible);
+    });
+
+    document.querySelectorAll('.correct-option').forEach(el => {
+      el.classList.toggle("correct", answersVisible);
+    });
+
+    document.getElementById("toggleIcon").className =
+      answersVisible ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
+    document.getElementById("toggleLabel").textContent =
+      answersVisible ? "Hide Answers" : "Show Answers";
+  }
+</script>
+
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- Welcome Banner -->
+<div class="welcome-card">
+    <div class="welcome-text">
+        <h1>👋 Welcome back, {{ request.user.first_name }}!</h1>
+        <p>Ready to ace your next interview? Let's keep practising.</p>
+    </div>
+    <a href="{% url 'generate' %}" class="welcome-btn">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+        New Session
+    </a>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid">
+
+    <div class="stat-card">
+        <div class="icon sessions">
+            <i class="fa-solid fa-book-open"></i>
+        </div>
+        <h2>{{ tot_sessions }}</h2>
+        <span>Total Sessions</span>
+    </div>
+
+    <div class="stat-card">
+        <div class="icon questions">
+            <i class="fa-solid fa-circle-question"></i>
+        </div>
+        <h2>{{ tot_ques }}</h2>
+        <span>Questions Practised</span>
+    </div>
+
+    <div class="stat-card">
+        <div class="icon role">
+            <i class="fa-solid fa-fire"></i>
+        </div>
+        <h2 class="stat-role">{{ fav_role }}</h2>
+        <span>Favourite Role</span>
+    </div>
+
+</div>
+
+
+<!-- Middle Cards -->
+<div class="dashboard-grid">
+
+    <div class="action-card">
+        <div class="action-icon start">
+            <i class="fa-solid fa-rocket"></i>
+        </div>
+        <h3>Start New Session</h3>
+        <p>Generate fresh questions for any role and difficulty level.</p>
+        <a href="{% url 'generate' %}" class="btn">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            Generate Now
+        </a>
+    </div>
+
+    <div class="action-card">
+        <div class="action-icon progress">
+            <i class="fa-solid fa-chart-line"></i>
+        </div>
+        <h3>Your Progress</h3>
+        <div class="progress-info">
+            <h2>{{ tot_ques }}</h2>
+            <span>Questions Practised</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+    </div>
+
+    <div class="action-card">
+        <div class="action-icon quote-icon">
+            <i class="fa-solid fa-quote-left"></i>
+        </div>
+        <h3>Daily Motivation</h3>
+        <div class="quote">
+            Success is the sum of small efforts, repeated day in and day out.
+        </div>
+    </div>
+
+</div>
+
+
+<!-- Recent Activity -->
+<div class="recent-card">
+
+    <div class="card-title">
+        <h2>Recent Activity</h2>
+        <a href="{% url 'history' %}" class="view-all">View all <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+
+    {% if recent_sessions %}
+        {% for session in recent_sessions %}
+        <div class="activity">
+            <div class="activity-icon">
+                <i class="fa-solid fa-file-lines"></i>
+            </div>
+            <div class="activity-info">
+                <h4>{{ session.role }}</h4>
+                <p>{{ session.created_at|date:"d M Y" }} &nbsp;·&nbsp; {{ session.no_of_ques }} questions</p>
+            </div>
+            <span class="badge {{ session.difficulty|lower }}">{{ session.difficulty }}</span>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-activity">
+            <i class="fa-regular fa-folder-open"></i>
+            <p>No sessions yet. <a href="{% url 'generate' %}">Generate your first one!</a></p>
+        </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,61 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login – AI Interview</title>
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+
+<div class="container">
+
+    <div class="logo">
+        <div class="icon-wrap">🤖</div>
+        <h1>AI Interview Generator</h1>
+        <p>Welcome back! Sign in to continue.</p>
+    </div>
+
+    {% if error %}
+    <div class="error">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="input-box">
+            <i class="input-icon fa-regular fa-envelope"></i>
+            <input type="email" name="email" placeholder="Email address" required>
+        </div>
+
+        <div class="input-box">
+            <i class="input-icon fa-solid fa-lock"></i>
+            <input type="password" name="password" placeholder="Password" required>
+        </div>
+
+        <div style="text-align:right; margin-top:-10px; margin-bottom:18px;">
+            <a href="{% url 'forgot_password' %}"
+               style="font-size:13px; color:#2563eb; font-weight:600; text-decoration:none;">
+                Forgot password?
+            </a>
+        </div>
+
+        <button class="btn" type="submit">
+            Sign In &nbsp;<i class="fa-solid fa-arrow-right"></i>
+        </button>
+    </form>
+
+    <div class="divider">or</div>
+
+    <div class="link">
+        Don't have an account?
+        <a href="{% url 'register' %}">Create one</a>
+    </div>
+
+</div>
+
+</body>
+</html>

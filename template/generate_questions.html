@@ -1,0 +1,158 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block page_title %}Generate Questions{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/generate.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="generate-container">
+
+    <!-- Left: Form -->
+    <div class="generator-card">
+
+        <div class="card-header">
+            <div class="card-header-icon">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+            <div>
+                <h1>AI Interview Generator</h1>
+                <p>Generate customised questions for any role and difficulty level.</p>
+            </div>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="input-group">
+                <label><i class="fa-solid fa-briefcase"></i>&nbsp; Job Role</label>
+                <input type="text" name="role" placeholder="e.g. Backend Developer, Data Analyst" required>
+            </div>
+
+            <div class="input-group">
+                <label><i class="fa-solid fa-gauge-high"></i>&nbsp; Difficulty Level</label>
+                <select name="difficulty">
+                    <option>Easy</option>
+                    <option selected>Medium</option>
+                    <option>Hard</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="input-group">
+                    <label><i class="fa-solid fa-list"></i>&nbsp; Question Type</label>
+                    <select name="question_type">
+                        <option value="qa">Questions + Answers</option>
+                        <option value="mcq">MCQ</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label><i class="fa-solid fa-hashtag"></i>&nbsp; No. of Questions</label>
+                    <input type="number" name="num_questions" min="1" max="50" value="10">
+                </div>
+            </div>
+
+            <button type="submit">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                Generate Questions
+            </button>
+
+        </form>
+    </div>
+
+    <!-- Right: Tips -->
+    <div class="tips-card">
+        <div class="tips-header">
+            <div class="tips-icon"><i class="fa-solid fa-lightbulb"></i></div>
+            <h2>Pro Tips</h2>
+        </div>
+        <ul>
+            <li>Be specific — "React Developer" beats "Developer".</li>
+            <li>Start with Medium difficulty to benchmark yourself.</li>
+            <li>Use MCQ for quick revision, Q&A for deep practice.</li>
+            <li>Revisit history sessions to reinforce learning.</li>
+            <li>Try different tech stacks to broaden your prep.</li>
+        </ul>
+    </div>
+
+</div>
+
+
+{% if questions %}
+<div class="result-card">
+
+    <div class="result-header">
+        <div class="result-header-left">
+            <h2>Generated Questions</h2>
+            <span class="result-meta">
+                {{ questions|length }} questions &nbsp;·&nbsp;
+                {% if ques_type == "mcq" %}MCQ{% else %}Q&A{% endif %}
+            </span>
+        </div>
+        <button class="toggle-answers-btn" onclick="toggleAllAnswers()">
+            <i class="fa-solid fa-eye" id="toggleIcon"></i>
+            <span id="toggleLabel">Show Answers</span>
+        </button>
+    </div>
+
+    {% if ques_type == "mcq" %}
+
+        {% for item in questions %}
+        <div class="mcq-item">
+            <div class="mcq-question">
+                <div class="mcq-num">{{ forloop.counter }}</div>
+                <div class="mcq-question-text">{{ item.question }}</div>
+            </div>
+            <div class="mcq-options">
+                {% for key, val in item.options.items %}
+                <div class="mcq-option {% if key == item.answer %}correct-option{% endif %}" data-key="{{ key }}">
+                    <strong>{{ key }}.</strong> {{ val }}
+                </div>
+                {% endfor %}
+            </div>
+            <div class="mcq-answer-wrap" id="mcq-ans-{{ forloop.counter }}">
+                <div class="mcq-correct-label"><i class="fa-solid fa-circle-check"></i> Correct Answer: {{ item.answer }}</div>
+                {% if item.explanation %}
+                <div class="mcq-explanation"><i class="fa-solid fa-info-circle"></i> {{ item.explanation }}</div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+
+    {% else %}
+
+        {% for item in questions %}
+        <div class="qa-item">
+            <div class="qa-question">
+                <div class="qa-num">{{ forloop.counter }}</div>
+                <div class="qa-question-text">{{ item.question }}</div>
+            </div>
+            <div class="qa-answer-wrap" id="qa-ans-{{ forloop.counter }}">
+                <div class="qa-answer"><strong>Answer:</strong> {{ item.answer }}</div>
+                {% if item.explanation %}
+                <div class="qa-explanation"><i class="fa-solid fa-info-circle"></i> {{ item.explanation }}</div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+
+    {% endif %}
+
+</div>
+
+<script>
+    let answersVisible = false;
+    function toggleAllAnswers(){
+        answersVisible = !answersVisible;
+        document.querySelectorAll('[id^="qa-ans-"],[id^="mcq-ans-"]').forEach(el => el.classList.toggle("show", answersVisible));
+        document.querySelectorAll('.correct-option').forEach(el => el.classList.toggle("correct", answersVisible));
+        document.getElementById("toggleIcon").className = answersVisible ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
+        document.getElementById("toggleLabel").textContent = answersVisible ? "Hide Answers" : "Show Answers";
+    }
+</script>
+{% endif %}
+
+{% endblock %}

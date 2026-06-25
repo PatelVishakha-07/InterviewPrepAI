@@ -1,0 +1,166 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block page_title %}Profile{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- Profile Hero -->
+<div class="profile-hero">
+    <div class="profile-avatar-wrap">
+        {% if request.user.profile.profile_picture %}
+            <img src="{{ request.user.profile.profile_picture.url }}" class="profile-avatar-img">
+        {% else %}
+            <div class="profile-avatar-letter">{{ request.user.first_name|first|upper }}</div>
+        {% endif %}
+        <a href="{% url 'change_profile_pic' %}" class="avatar-edit-btn" title="Change photo">
+            <i class="fa-solid fa-camera"></i>
+        </a>
+    </div>
+    <div class="profile-hero-info">
+        <h1>{{ request.user.first_name }}</h1>
+        <p><i class="fa-regular fa-envelope"></i> {{ request.user.email }}</p>
+        <p><i class="fa-regular fa-calendar"></i> Member since {{ request.user.date_joined|date:"d M Y" }}</p>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="icon sessions"><i class="fa-solid fa-book-open"></i></div>
+        <h2>{{ total_sessions }}</h2>
+        <span>Total Sessions</span>
+    </div>
+    <div class="stat-card">
+        <div class="icon questions"><i class="fa-solid fa-circle-question"></i></div>
+        <h2>{{ total_questions }}</h2>
+        <span>Questions Practised</span>
+    </div>
+    <div class="stat-card">
+        <div class="icon joined"><i class="fa-solid fa-calendar-check"></i></div>
+        <h2>{{ request.user.date_joined|date:"Y" }}</h2>
+        <span>Member Since</span>
+    </div>
+</div>
+
+<!-- Account Info -->
+<div class="profile-section">
+    <h2>Account Information</h2>
+    <div class="info-grid">
+        <div class="info-card">
+            <span>Full Name</span>
+            <h3>{{ request.user.first_name }}</h3>
+        </div>
+        <div class="info-card">
+            <span>Email Address</span>
+            <h3>{{ request.user.email }}</h3>
+        </div>
+        <div class="info-card">
+            <span>Joined</span>
+            <h3>{{ request.user.date_joined|date:"d M Y" }}</h3>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Sessions -->
+<div class="recent-card">
+    <div class="card-title">
+        <h2>Recent Sessions</h2>
+        <a href="{% url 'history' %}" class="view-all-link">View all <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+
+    {% if recent_sessions %}
+    <table>
+        <thead>
+            <tr>
+                <th>Role</th>
+                <th>Type</th>
+                <th>Difficulty</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for session in recent_sessions %}
+            <tr>
+                <td><strong>{{ session.role }}</strong></td>
+                <td>{{ session.get_ques_type_display }}</td>
+                <td><span class="badge {{ session.difficulty|lower }}">{{ session.difficulty }}</span></td>
+                <td>{{ session.created_at|date:"d M Y" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <i class="fa-regular fa-folder-open"></i>
+        <h3>No Recent Activity</h3>
+        <p>Start generating interview questions to build your profile.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Actions -->
+<div class="action-section">
+    <a href="{% url 'generate' %}" class="btn">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+        New Session
+    </a>
+    <a href="#" id="changePasswordBtn" class="btn secondary-btn">
+        <i class="fa-solid fa-lock"></i>
+        Change Password
+    </a>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal" id="passwordModal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2><i class="fa-solid fa-lock"></i>&nbsp; Change Password</h2>
+        <div id="passwordMessage"></div>
+        <form method="POST" action="{% url 'change_password' %}" id="passwordForm">
+            {% csrf_token %}
+            <div class="input-group">
+                <label>Current Password</label>
+                <input type="password" name="current_password" required>
+            </div>
+            <div class="input-group">
+                <label>New Password</label>
+                <input type="password" name="new_password" required>
+            </div>
+            <div class="input-group">
+                <label>Confirm New Password</label>
+                <input type="password" name="confirm_password" required>
+            </div>
+            <button class="btn" style="width:100%;justify-content:center;">
+                Update Password
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const modal   = document.getElementById("passwordModal");
+    const openBtn = document.getElementById("changePasswordBtn");
+    const closeBtn = document.querySelector(".close-modal");
+
+    openBtn.onclick  = e => { e.preventDefault(); modal.classList.add("show"); }
+    closeBtn.onclick = () => modal.classList.remove("show");
+    window.onclick   = e => { if(e.target === modal) modal.classList.remove("show"); }
+
+    document.getElementById("passwordForm").addEventListener("submit", function(e){
+        e.preventDefault();
+        fetch("{% url 'change_password' %}", { method:"POST", body:new FormData(this) })
+        .then(r => r.json())
+        .then(data => {
+            const msg = document.getElementById("passwordMessage");
+            msg.innerHTML = `<div class="message-box ${data.success ? 'success-message' : 'error-message'}">${data.message}</div>`;
+            if(data.success) this.reset();
+        });
+    });
+</script>
+
+{% endblock %}
