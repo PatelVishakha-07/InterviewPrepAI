@@ -21,8 +21,8 @@ A full-stack web application built with **Django** and **Google Gemini AI** that
 
 | Layer | Technology |
 |---|---|
-| Backend | Python 3.9, Django 4.2 |
-| AI | Google Gemini 2.5 Flash (`google-generativeai`) |
+| Backend | Python 3.12, Django 4.2 |
+| AI | Google Gemini 2.5 Flash (`google-genai`) |
 | Database | MySQL |
 | PDF Generation | ReportLab |
 | Email | Gmail SMTP |
@@ -45,7 +45,7 @@ A full-stack web application built with **Django** and **Google Gemini AI** that
 
 ### Prerequisites
 
-- Python 3.9+
+- Python 3.12+
 - MySQL
 - A Google account with 2-Step Verification enabled (for Gmail SMTP)
 - A Google Gemini API key
@@ -163,21 +163,18 @@ AI_InterviewQuestion_Generator/
 
 ## 📦 Requirements
 
-Generate with:
-
-```bash
-pip freeze > requirements.txt
-```
-
-Key packages:
-
 ```
 Django==4.2.20
-google-generativeai
-python-dotenv
 mysqlclient
-reportlab
 Pillow
+python-dotenv
+google-genai
+reportlab
+```
+
+Install with:
+```bash
+pip install -r requirements.txt
 ```
 
 ---
