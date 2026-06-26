@@ -1,56 +1,55 @@
 import os
 from dotenv import load_dotenv
-import google.generativeai as genai
+from google import genai
 import json
 
 load_dotenv()
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
-model = genai.GenerativeModel("gemini-2.5-flash")
 
 def get_questions(role, difficulty, no_questions, ques_type):
 
     if ques_type == "mcq":
         prompt = f"""Generate {no_questions} {difficulty} level interview MCQs for {role}.
-        Return only valid JSON.
-        Format:
-        [
-        {{
-        "question":"What is Python?",
-        "options":
-        {{
-        "A":"Database",
-        "B":"Programming Language",
-        "C":"Browser",
-        "D":"Operating System"
-        }},
-        "answer":"B",
-        "explanation":"Python is a programming language."
-        }}
-        ]
-        """
+Return ONLY valid JSON, no explanation, no markdown.
+Format:
+[
+{{
+"question": "What is Python?",
+"options": {{
+"A": "Database",
+"B": "Programming Language",
+"C": "Browser",
+"D": "Operating System"
+}},
+"answer": "B",
+"explanation": "Python is a programming language."
+}}
+]"""
+
     else:
-        prompt = f""" Generate {no_questions} {difficulty} level interview questions for a {role}.
-    Only return numbered questions. 
-    Return ONLY valid JSON.
+        prompt = f"""Generate {no_questions} {difficulty} level interview questions for a {role}.
+Return ONLY valid JSON, no explanation, no markdown.
+Format:
+[
+{{
+"question": "What is OOP?",
+"answer": "Object Oriented Programming is a paradigm that organizes code into objects.",
+"explanation": "It helps organize and reuse code through classes and objects."
+}}
+]"""
 
-    Format:
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt,
+    )
 
-    [
-    {{
-    "question":"What is OOP?",
-    "answer":"Object Oriented Programming",
-    "explanation":"It helps organize code."
-    }}
-    ]
-    """
+    text = response.text.strip()
 
-    response = model.generate_content(prompt)
+    # Strip markdown code fences if present
+    if text.startswith("```"):
+        text = text.split("\n", 1)[-1]
+        text = text.rsplit("```", 1)[0]
 
-    text = response.text
-
-    text = text.replace("```json", "")
-    text = text.replace("```", "")
-
-    return json.loads(text)
+    return json.loads(text.strip())

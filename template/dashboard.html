@@ -76,8 +76,13 @@
             <span>Questions Practised</span>
         </div>
         <div class="progress-bar">
-            <div class="progress-fill"></div>
+            <div class="progress-fill" id="progressFill" data-ques="{{ tot_ques }}"></div>
         </div>
+        {% if tot_ques == 0 %}
+        <p style="font-size:12px; color:#94a3b8; margin-top:10px; text-align:center;">
+            Generate your first session to start tracking!
+        </p>
+        {% endif %}
     </div>
 
     <div class="action-card">
@@ -122,5 +127,14 @@
     {% endif %}
 
 </div>
+
+<script>
+    const fill = document.getElementById("progressFill");
+    if (fill) {
+        const ques = parseInt(fill.getAttribute("data-ques")) || 0;
+        const width = ques === 0 ? 0 : Math.min(ques, 100);
+        fill.style.setProperty("--progress-width", width + "%");
+    }
+</script>
 
 {% endblock %}

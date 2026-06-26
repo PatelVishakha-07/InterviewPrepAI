@@ -47,19 +47,18 @@
         display:flex; justify-content:center; align-items:center;
         box-shadow:0 4px 16px rgba(37,99,235,.25);
     }
-    .avatar-label{
-        font-size:13px; color:#64748b; font-weight:500;
-    }
+    .avatar-label{ font-size:13px; color:#64748b; font-weight:500; }
+
     .file-upload-box{
         border:2px dashed #e2e8f0; border-radius:14px;
         padding:24px; text-align:center;
-        background:#f8fafc; margin-bottom:20px;
+        background:#f8fafc; margin-bottom:14px;
         transition:.2s; cursor:pointer;
     }
     .file-upload-box:hover{ border-color:#2563eb; background:#eff6ff; }
-    .file-upload-box i{ font-size:28px; color:#94a3b8; margin-bottom:10px; }
+    .file-upload-box.has-file{ border-color:#2563eb; background:#eff6ff; }
+    .file-upload-box i{ font-size:28px; color:#94a3b8; margin-bottom:10px; display:block; }
     .file-upload-box p{ font-size:13px; color:#64748b; margin-bottom:12px; }
-    .file-upload-box input[type="file"]{ display:none; }
     .file-choose-btn{
         display:inline-block;
         background:#eff6ff; color:#2563eb;
@@ -69,7 +68,36 @@
         transition:.2s;
     }
     .file-choose-btn:hover{ background:#dbeafe; }
-    .file-name{ font-size:12px; color:#64748b; margin-top:8px; }
+
+    /* Clean file name row below box */
+    .file-name-row{
+        display:none;
+        align-items:center;
+        gap:10px;
+        background:#f0fdf4;
+        border:1px solid #bbf7d0;
+        border-radius:12px;
+        padding:10px 16px;
+        margin-bottom:18px;
+        font-size:13px;
+        color:#166534;
+        font-weight:500;
+    }
+    .file-name-row i{ color:#16a34a; flex-shrink:0; }
+    .file-name-row span{
+        flex:1;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+    }
+    .clear-file-btn{
+        background:none; border:none; cursor:pointer;
+        color:#94a3b8; font-size:14px; padding:0;
+        display:flex; align-items:center;
+        transition:.2s;
+    }
+    .clear-file-btn:hover{ color:#dc2626; }
+
     .upload-btn{
         width:100%;
         padding:14px;
@@ -82,6 +110,8 @@
         box-shadow:0 4px 15px rgba(37,99,235,.35);
     }
     .upload-btn:hover{ transform:translateY(-2px); box-shadow:0 8px 24px rgba(37,99,235,.45); }
+    .upload-btn:disabled{ opacity:.6; cursor:not-allowed; transform:none; }
+
     .back-link{
         display:flex; align-items:center; gap:6px;
         color:#64748b; text-decoration:none; font-size:13px;
@@ -121,15 +151,28 @@
     <form method="POST" enctype="multipart/form-data" id="uploadForm">
         {% csrf_token %}
 
-        <div class="file-upload-box" onclick="document.getElementById('fileInput').click()">
+        {% comment %}
+            Hidden Django widget — keeps form submission working
+        {% endcomment %}
+        <div style="display:none;">{{ form.profile_picture }}</div>
+
+        <!-- Custom upload box -->
+        <div class="file-upload-box" id="uploadBox" onclick="document.getElementById('fileInput').click()">
             <i class="fa-solid fa-cloud-arrow-up"></i>
             <p>Click to choose a new photo</p>
             <span class="file-choose-btn">Browse Files</span>
-            <div class="file-name" id="fileName">No file chosen</div>
-            {{ form.profile_picture }}
         </div>
 
-        <button type="submit" class="upload-btn">
+        <!-- Clean selected file name row -->
+        <div class="file-name-row" id="fileNameRow">
+            <i class="fa-solid fa-file-image"></i>
+            <span id="fileName"></span>
+            <button type="button" class="clear-file-btn" onclick="clearFile()" title="Remove">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <button type="submit" class="upload-btn" id="uploadBtn" disabled>
             <i class="fa-solid fa-check"></i>
             Save Profile Picture
         </button>
@@ -144,25 +187,45 @@
 </div>
 
 <script>
-    const input    = document.querySelector('input[type="file"]');
-    const fileName = document.getElementById("fileName");
-    const preview  = document.getElementById("previewImg");
-    const defLetter = document.getElementById("defaultLetter");
+    // Point upload box click to the hidden Django input
+    const input      = document.querySelector('input[type="file"]');
+    const fileName   = document.getElementById("fileName");
+    const fileRow    = document.getElementById("fileNameRow");
+    const uploadBox  = document.getElementById("uploadBox");
+    const uploadBtn  = document.getElementById("uploadBtn");
+    const preview    = document.getElementById("previewImg");
+    const defLetter  = document.getElementById("defaultLetter");
 
     input.id = "fileInput";
 
     input.addEventListener("change", function(){
         if(this.files && this.files[0]){
-            fileName.textContent = this.files[0].name;
+            const file = this.files[0];
+
+            // Show clean filename (no path, no ugly browser text)
+            fileName.textContent = file.name;
+            fileRow.style.display = "flex";
+            uploadBox.classList.add("has-file");
+            uploadBtn.disabled = false;
+
+            // Live preview
             const reader = new FileReader();
             reader.onload = e => {
                 preview.src = e.target.result;
                 preview.style.display = "block";
                 if(defLetter) defLetter.style.display = "none";
             };
-            reader.readAsDataURL(this.files[0]);
+            reader.readAsDataURL(file);
         }
     });
+
+    function clearFile(){
+        input.value = "";
+        fileName.textContent = "";
+        fileRow.style.display = "none";
+        uploadBox.classList.remove("has-file");
+        uploadBtn.disabled = true;
+    }
 </script>
 
 {% endblock %}
