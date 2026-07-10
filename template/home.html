@@ -1,0 +1,809 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview Question Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *{ margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+
+        :root{
+            --blue:#2563eb;
+            --purple:#7c3aed;
+            --dark:#0f172a;
+            --dark2:#1e1b4b;
+        }
+
+        html{ scroll-behavior:smooth; }
+
+        body{ background:#0f172a; color:white; overflow-x:hidden; }
+
+        /* ── Navbar ── */
+        nav{
+            position:fixed; top:0; left:0; right:0; z-index:100;
+            padding:18px 60px;
+            display:flex; justify-content:space-between; align-items:center;
+            background:rgba(15,23,42,.85);
+            backdrop-filter:blur(12px);
+            border-bottom:1px solid rgba(255,255,255,.06);
+        }
+
+        .nav-logo{
+            display:flex; align-items:center; gap:12px;
+            text-decoration:none;
+        }
+
+        .nav-logo-icon{
+            width:40px; height:40px;
+            background:linear-gradient(135deg,var(--blue),var(--purple));
+            border-radius:11px;
+            display:flex; justify-content:center; align-items:center;
+            font-size:20px;
+            box-shadow:0 4px 14px rgba(37,99,235,.4);
+        }
+
+        .nav-logo-text{
+            font-size:16px; font-weight:800; color:white; letter-spacing:-.2px;
+        }
+
+        .nav-links{
+            display:flex; align-items:center; gap:8px;
+        }
+
+        .nav-links a{
+            text-decoration:none; color:rgba(255,255,255,.7);
+            font-size:14px; font-weight:500; padding:8px 16px;
+            border-radius:10px; transition:.2s;
+        }
+
+        .nav-links a:hover{ color:white; background:rgba(255,255,255,.08); }
+
+        .nav-btn{
+            background:linear-gradient(135deg,var(--blue),var(--purple)) !important;
+            color:white !important;
+            box-shadow:0 4px 14px rgba(37,99,235,.4);
+        }
+
+        .nav-btn:hover{ transform:translateY(-2px); box-shadow:0 8px 24px rgba(37,99,235,.5) !important; }
+
+        /* ── Hero ── */
+        .hero{
+            min-height:100vh;
+            display:flex; align-items:center; justify-content:center;
+            text-align:center;
+            padding:120px 24px 80px;
+            position:relative;
+            overflow:hidden;
+        }
+
+        /* Background blobs */
+        .blob{
+            position:absolute; border-radius:50%;
+            filter:blur(80px); opacity:.15; pointer-events:none;
+        }
+
+        .blob-1{
+            width:600px; height:600px;
+            background:var(--blue);
+            top:-150px; left:-150px;
+            animation:float 10s ease-in-out infinite;
+        }
+
+        .blob-2{
+            width:500px; height:500px;
+            background:var(--purple);
+            bottom:-100px; right:-100px;
+            animation:float 12s ease-in-out infinite reverse;
+        }
+
+        .blob-3{
+            width:300px; height:300px;
+            background:#06b6d4;
+            top:40%; left:50%; transform:translate(-50%,-50%);
+            animation:float 8s ease-in-out infinite;
+        }
+
+        @keyframes float{
+            0%,100%{ transform:translateY(0) scale(1); }
+            50%{ transform:translateY(-30px) scale(1.05); }
+        }
+
+        .hero-content{ position:relative; z-index:1; max-width:780px; }
+
+        .hero-badge{
+            display:inline-flex; align-items:center; gap:8px;
+            background:rgba(37,99,235,.15);
+            border:1px solid rgba(37,99,235,.3);
+            color:#93c5fd; padding:8px 18px; border-radius:30px;
+            font-size:13px; font-weight:600; margin-bottom:28px;
+            letter-spacing:.3px;
+        }
+
+        .hero-badge i{ font-size:12px; }
+
+        .hero h1{
+            font-size:clamp(42px, 7vw, 72px);
+            font-weight:900; line-height:1.08;
+            letter-spacing:-2px; margin-bottom:24px;
+        }
+
+        .hero h1 .gradient-text{
+            background:linear-gradient(135deg,#60a5fa,#a78bfa,#60a5fa);
+            background-size:200% auto;
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+            background-clip:text;
+            animation:textShimmer 4s linear infinite;
+        }
+
+        @keyframes textShimmer{
+            0%{ background-position:0% center; }
+            100%{ background-position:200% center; }
+        }
+
+        .hero p{
+            font-size:18px; color:rgba(255,255,255,.6);
+            line-height:1.7; margin-bottom:40px; max-width:560px; margin-left:auto; margin-right:auto;
+        }
+
+        .hero-btns{
+            display:flex; justify-content:center; gap:14px; flex-wrap:wrap;
+        }
+
+        .btn-primary{
+            display:inline-flex; align-items:center; gap:10px;
+            background:linear-gradient(135deg,var(--blue),var(--purple));
+            color:white; text-decoration:none;
+            padding:16px 32px; border-radius:14px;
+            font-size:15px; font-weight:700;
+            box-shadow:0 6px 24px rgba(37,99,235,.45);
+            transition:.3s;
+        }
+
+        .btn-primary:hover{ transform:translateY(-3px); box-shadow:0 12px 36px rgba(37,99,235,.55); }
+
+        .btn-secondary{
+            display:inline-flex; align-items:center; gap:10px;
+            background:rgba(255,255,255,.08);
+            border:1.5px solid rgba(255,255,255,.15);
+            color:white; text-decoration:none;
+            padding:16px 32px; border-radius:14px;
+            font-size:15px; font-weight:600;
+            transition:.3s; backdrop-filter:blur(8px);
+        }
+
+        .btn-secondary:hover{ background:rgba(255,255,255,.14); transform:translateY(-3px); }
+
+        /* Hero stats */
+        .hero-stats{
+            display:flex; justify-content:center; gap:40px;
+            margin-top:60px; flex-wrap:wrap;
+        }
+
+        .hero-stat{ text-align:center; }
+
+        .hero-stat h3{
+            font-size:28px; font-weight:800; color:white;
+            letter-spacing:-1px; margin-bottom:4px;
+        }
+
+        .hero-stat p{ font-size:13px; color:rgba(255,255,255,.5); font-weight:500; }
+
+        /* ── Section common ── */
+        section{ padding:100px 60px; }
+
+        .section-label{
+            display:inline-flex; align-items:center; gap:8px;
+            background:rgba(37,99,235,.12);
+            border:1px solid rgba(37,99,235,.25);
+            color:#93c5fd; padding:6px 16px; border-radius:20px;
+            font-size:12px; font-weight:700; letter-spacing:.8px;
+            text-transform:uppercase; margin-bottom:16px;
+        }
+
+        .section-title{
+            font-size:clamp(28px,4vw,42px); font-weight:800;
+            letter-spacing:-.5px; margin-bottom:14px; color:white;
+        }
+
+        .section-sub{
+            font-size:16px; color:rgba(255,255,255,.55);
+            line-height:1.7; max-width:520px;
+        }
+
+        /* ── Features ── */
+        .features{ background:#0f172a; }
+
+        .features-header{ text-align:center; margin-bottom:60px; }
+        .features-header .section-sub{ margin:0 auto; }
+
+        .features-grid{
+            display:grid;
+            grid-template-columns:repeat(auto-fit, minmax(300px,1fr));
+            gap:24px; max-width:1100px; margin:0 auto;
+        }
+
+        .feature-card{
+            background:rgba(255,255,255,.03);
+            border:1px solid rgba(255,255,255,.07);
+            border-radius:20px; padding:32px;
+            transition:.3s;
+            position:relative; overflow:hidden;
+        }
+
+        .feature-card::before{
+            content:''; position:absolute;
+            top:0; left:0; right:0; height:2px;
+            background:linear-gradient(90deg,var(--blue),var(--purple));
+            opacity:0; transition:.3s;
+        }
+
+        .feature-card:hover{
+            border-color:rgba(37,99,235,.3);
+            background:rgba(37,99,235,.05);
+            transform:translateY(-6px);
+        }
+
+        .feature-card:hover::before{ opacity:1; }
+
+        .feature-icon{
+            width:52px; height:52px; border-radius:14px;
+            display:flex; justify-content:center; align-items:center;
+            font-size:22px; margin-bottom:20px;
+        }
+
+        .fi-blue   { background:rgba(37,99,235,.15);  color:#60a5fa; }
+        .fi-purple { background:rgba(124,58,237,.15); color:#a78bfa; }
+        .fi-green  { background:rgba(16,185,129,.15); color:#34d399; }
+        .fi-orange { background:rgba(245,158,11,.15); color:#fbbf24; }
+        .fi-red    { background:rgba(239,68,68,.15);  color:#f87171; }
+        .fi-cyan   { background:rgba(6,182,212,.15);  color:#22d3ee; }
+
+        .feature-card h3{
+            font-size:17px; font-weight:700; color:white;
+            margin-bottom:10px;
+        }
+
+        .feature-card p{
+            font-size:14px; color:rgba(255,255,255,.5);
+            line-height:1.7;
+        }
+
+        /* ── How it works ── */
+        .how{ background:rgba(255,255,255,.02); }
+
+        .how-inner{
+            max-width:1100px; margin:0 auto;
+            display:grid; grid-template-columns:1fr 1fr;
+            gap:80px; align-items:center;
+        }
+
+        .steps{ display:flex; flex-direction:column; gap:32px; }
+
+        .step{
+            display:flex; gap:20px; align-items:flex-start;
+        }
+
+        .step-num{
+            width:44px; height:44px; border-radius:12px; flex-shrink:0;
+            background:linear-gradient(135deg,var(--blue),var(--purple));
+            display:flex; justify-content:center; align-items:center;
+            font-size:16px; font-weight:800; color:white;
+            box-shadow:0 4px 14px rgba(37,99,235,.35);
+        }
+
+        .step-info h4{
+            font-size:16px; font-weight:700; color:white; margin-bottom:6px;
+        }
+
+        .step-info p{
+            font-size:14px; color:rgba(255,255,255,.5); line-height:1.6;
+        }
+
+        /* Mock UI card */
+        .mock-card{
+            background:rgba(255,255,255,.04);
+            border:1px solid rgba(255,255,255,.08);
+            border-radius:22px; padding:28px;
+            position:relative;
+        }
+
+        .mock-topbar{
+            display:flex; gap:8px; margin-bottom:22px;
+        }
+
+        .mock-dot{
+            width:12px; height:12px; border-radius:50%;
+        }
+
+        .mock-dot:nth-child(1){ background:#ef4444; }
+        .mock-dot:nth-child(2){ background:#f59e0b; }
+        .mock-dot:nth-child(3){ background:#22c55e; }
+
+        .mock-field{
+            background:rgba(255,255,255,.06);
+            border:1px solid rgba(255,255,255,.1);
+            border-radius:10px; padding:12px 16px;
+            margin-bottom:12px; font-size:13px;
+            color:rgba(255,255,255,.6);
+        }
+
+        .mock-field span{ color:rgba(255,255,255,.3); margin-right:8px; }
+
+        .mock-btn{
+            width:100%; padding:13px;
+            background:linear-gradient(135deg,var(--blue),var(--purple));
+            border-radius:10px; text-align:center;
+            font-size:14px; font-weight:700; color:white;
+            margin-top:4px; margin-bottom:20px;
+        }
+
+        .mock-q{
+            background:rgba(255,255,255,.04);
+            border:1px solid rgba(255,255,255,.07);
+            border-radius:12px; padding:14px 16px;
+            margin-bottom:10px; display:flex; gap:12px; align-items:flex-start;
+        }
+
+        .mock-q-num{
+            width:28px; height:28px; border-radius:8px; flex-shrink:0;
+            background:linear-gradient(135deg,var(--blue),var(--purple));
+            display:flex; justify-content:center; align-items:center;
+            font-size:12px; font-weight:700;
+        }
+
+        .mock-q-text{ font-size:13px; color:rgba(255,255,255,.6); line-height:1.5; }
+
+        /* ── Question Types ── */
+        .types{ background:#0f172a; }
+
+        .types-inner{ max-width:1100px; margin:0 auto; }
+
+        .types-header{ margin-bottom:50px; }
+
+        .types-grid{
+            display:grid; grid-template-columns:1fr 1fr; gap:24px;
+        }
+
+        .type-card{
+            border-radius:20px; padding:36px;
+            border:1px solid rgba(255,255,255,.08);
+            transition:.3s;
+        }
+
+        .type-card:hover{ transform:translateY(-4px); }
+
+        .type-qa{
+            background:linear-gradient(135deg,rgba(37,99,235,.12),rgba(37,99,235,.04));
+            border-color:rgba(37,99,235,.25);
+        }
+
+        .type-mcq{
+            background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(124,58,237,.04));
+            border-color:rgba(124,58,237,.25);
+        }
+
+        .type-badge{
+            display:inline-block; padding:5px 14px; border-radius:20px;
+            font-size:12px; font-weight:700; margin-bottom:18px;
+            letter-spacing:.5px;
+        }
+
+        .type-qa .type-badge{ background:rgba(37,99,235,.2); color:#60a5fa; }
+        .type-mcq .type-badge{ background:rgba(124,58,237,.2); color:#a78bfa; }
+
+        .type-card h3{ font-size:20px; font-weight:800; margin-bottom:10px; }
+        .type-card p{ font-size:14px; color:rgba(255,255,255,.55); line-height:1.6; margin-bottom:20px; }
+
+        .type-list{ list-style:none; display:flex; flex-direction:column; gap:10px; }
+
+        .type-list li{
+            display:flex; align-items:center; gap:10px;
+            font-size:14px; color:rgba(255,255,255,.7);
+        }
+
+        .type-list li i{ font-size:13px; }
+        .type-qa .type-list li i{ color:#60a5fa; }
+        .type-mcq .type-list li i{ color:#a78bfa; }
+
+        /* ── CTA ── */
+        .cta{
+            background:linear-gradient(135deg,#1d4ed8,#7c3aed);
+            text-align:center; padding:100px 60px;
+            position:relative; overflow:hidden;
+        }
+
+        .cta::before{
+            content:''; position:absolute;
+            width:500px; height:500px; border-radius:50%;
+            background:rgba(255,255,255,.05);
+            top:-150px; right:-100px;
+        }
+
+        .cta::after{
+            content:''; position:absolute;
+            width:400px; height:400px; border-radius:50%;
+            background:rgba(255,255,255,.04);
+            bottom:-100px; left:-80px;
+        }
+
+        .cta-content{ position:relative; z-index:1; max-width:600px; margin:0 auto; }
+
+        .cta h2{
+            font-size:clamp(28px,4vw,46px); font-weight:900;
+            letter-spacing:-.5px; margin-bottom:16px;
+        }
+
+        .cta p{
+            font-size:16px; opacity:.85; margin-bottom:36px; line-height:1.7;
+        }
+
+        .cta-btns{ display:flex; justify-content:center; gap:14px; flex-wrap:wrap; }
+
+        .btn-white{
+            display:inline-flex; align-items:center; gap:10px;
+            background:white; color:#1d4ed8;
+            text-decoration:none; padding:16px 32px;
+            border-radius:14px; font-size:15px; font-weight:800;
+            transition:.3s; box-shadow:0 6px 24px rgba(0,0,0,.2);
+        }
+
+        .btn-white:hover{ transform:translateY(-3px); box-shadow:0 12px 36px rgba(0,0,0,.25); }
+
+        .btn-outline-white{
+            display:inline-flex; align-items:center; gap:10px;
+            background:transparent;
+            border:2px solid rgba(255,255,255,.5);
+            color:white; text-decoration:none;
+            padding:16px 32px; border-radius:14px;
+            font-size:15px; font-weight:700; transition:.3s;
+        }
+
+        .btn-outline-white:hover{
+            background:rgba(255,255,255,.1); border-color:white;
+            transform:translateY(-3px);
+        }
+
+        /* ── Footer ── */
+        footer{
+            background:#080e1a;
+            padding:40px 60px;
+            display:flex; justify-content:space-between; align-items:center;
+            flex-wrap:wrap; gap:16px;
+            border-top:1px solid rgba(255,255,255,.06);
+        }
+
+        .footer-logo{
+            display:flex; align-items:center; gap:10px; text-decoration:none;
+        }
+
+        .footer-logo-icon{
+            width:34px; height:34px; border-radius:9px;
+            background:linear-gradient(135deg,var(--blue),var(--purple));
+            display:flex; justify-content:center; align-items:center; font-size:16px;
+        }
+
+        .footer-logo span{ font-size:14px; font-weight:700; color:white; }
+
+        footer p{ font-size:13px; color:rgba(255,255,255,.35); }
+
+        .footer-links{ display:flex; gap:20px; }
+
+        .footer-links a{
+            font-size:13px; color:rgba(255,255,255,.4);
+            text-decoration:none; transition:.2s;
+        }
+
+        .footer-links a:hover{ color:white; }
+
+        /* ── Responsive ── */
+        @media(max-width:900px){
+            nav{ padding:16px 24px; }
+            section{ padding:70px 24px; }
+            .how-inner{ grid-template-columns:1fr; gap:40px; }
+            .types-grid{ grid-template-columns:1fr; }
+            footer{ padding:32px 24px; flex-direction:column; text-align:center; }
+        }
+
+        @media(max-width:600px){
+            .hero-stats{ gap:24px; }
+            .nav-links .nav-hide{ display:none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav>
+    <a href="#" class="nav-logo">
+        <div class="nav-logo-icon">🤖</div>
+        <span class="nav-logo-text">AI Interview</span>
+    </a>
+    <div class="nav-links">
+        <a href="#features" class="nav-hide">Features</a>
+        <a href="#how" class="nav-hide">How it works</a>
+        <a href="{% url 'login' %}">Login</a>
+        <a href="{% url 'register' %}" class="nav-btn">Get Started</a>
+    </div>
+</nav>
+
+
+<!-- Hero -->
+<section class="hero">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="hero-content">
+
+        <div class="hero-badge">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            Powered by Google Gemini AI
+        </div>
+
+        <h1>
+            Ace Every Interview<br>
+            with <span class="gradient-text">AI-Generated</span><br>
+            Questions
+        </h1>
+
+        <p>
+            Generate customised interview questions and answers for any job role,
+            difficulty level, and question type — instantly.
+        </p>
+
+        <div class="hero-btns">
+            <a href="{% url 'register' %}" class="btn-primary">
+                <i class="fa-solid fa-rocket"></i>
+                Start Practising Free
+            </a>
+            <a href="#how" class="btn-secondary">
+                <i class="fa-solid fa-play"></i>
+                See How It Works
+            </a>
+        </div>
+
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <h3>Q&A</h3>
+                <p>Question & Answer</p>
+            </div>
+            <div class="hero-stat" style="border-left:1px solid rgba(255,255,255,.1); border-right:1px solid rgba(255,255,255,.1); padding:0 40px;">
+                <h3>MCQ</h3>
+                <p>Multiple Choice</p>
+            </div>
+            <div class="hero-stat">
+                <h3>PDF</h3>
+                <p>Download Sessions</p>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<!-- Features -->
+<section class="features" id="features">
+    <div class="features-header">
+        <div class="section-label">
+            <i class="fa-solid fa-star"></i> Features
+        </div>
+        <h2 class="section-title">Everything you need to prepare</h2>
+        <p class="section-sub">A complete interview preparation toolkit powered by the latest AI technology.</p>
+    </div>
+
+    <div class="features-grid">
+
+        <div class="feature-card">
+            <div class="feature-icon fi-blue">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+            <h3>AI-Powered Generation</h3>
+            <p>Generate tailored interview questions instantly using Google Gemini 2.5 Flash for any role and difficulty.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon fi-purple">
+                <i class="fa-solid fa-list-check"></i>
+            </div>
+            <h3>Q&A and MCQ Formats</h3>
+            <p>Choose between detailed question-answer pairs for deep practice or MCQs for quick revision sessions.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon fi-green">
+                <i class="fa-solid fa-file-pdf"></i>
+            </div>
+            <h3>PDF Download</h3>
+            <p>Download any session as a beautifully formatted PDF with questions, answers, and explanations.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon fi-orange">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <h3>Session History</h3>
+            <p>All your sessions are saved automatically. Revisit, review, and delete them anytime.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon fi-red">
+                <i class="fa-solid fa-eye"></i>
+            </div>
+            <h3>Show / Hide Answers</h3>
+            <p>Test yourself first — toggle all answers and explanations with a single click.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon fi-cyan">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h3>Secure Authentication</h3>
+            <p>Email OTP verification on signup and a Gmail-based forgot password flow keep your account safe.</p>
+        </div>
+
+    </div>
+</section>
+
+
+<!-- How it works -->
+<section class="how" id="how">
+    <div class="how-inner">
+
+        <div>
+            <div class="section-label">
+                <i class="fa-solid fa-map"></i> How It Works
+            </div>
+            <h2 class="section-title">Ready in seconds</h2>
+            <p class="section-sub" style="margin-bottom:48px;">
+                No complicated setup. Just pick a role, choose your settings, and get practising.
+            </p>
+
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-info">
+                        <h4>Create an account</h4>
+                        <p>Sign up with your email. A verification code is sent instantly to confirm your identity.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-info">
+                        <h4>Choose your role & settings</h4>
+                        <p>Enter a job role like "Backend Developer", pick Easy / Medium / Hard, and select Q&A or MCQ.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-info">
+                        <h4>Generate & practise</h4>
+                        <p>Gemini AI generates your questions in seconds. Toggle answers to test yourself, or download as PDF.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <div class="step-info">
+                        <h4>Review your history</h4>
+                        <p>All sessions are saved to your profile. Revisit past sessions anytime to reinforce your learning.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mock UI -->
+        <div class="mock-card">
+            <div class="mock-topbar">
+                <div class="mock-dot"></div>
+                <div class="mock-dot"></div>
+                <div class="mock-dot"></div>
+            </div>
+
+            <div class="mock-field"><span>Role</span> Backend Developer</div>
+            <div class="mock-field"><span>Difficulty</span> Medium</div>
+            <div class="mock-field"><span>Type</span> Questions + Answers</div>
+            <div class="mock-field"><span>Count</span> 10 Questions</div>
+
+            <div class="mock-btn">
+                ✨ Generate Questions
+            </div>
+
+            <div class="mock-q">
+                <div class="mock-q-num">1</div>
+                <div class="mock-q-text">What is the difference between SQL and NoSQL databases?</div>
+            </div>
+            <div class="mock-q">
+                <div class="mock-q-num">2</div>
+                <div class="mock-q-text">Explain REST API principles and HTTP methods.</div>
+            </div>
+            <div class="mock-q">
+                <div class="mock-q-num">3</div>
+                <div class="mock-q-text">What is indexing and how does it improve performance?</div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<!-- Question Types -->
+<section class="types">
+    <div class="types-inner">
+
+        <div class="types-header">
+            <div class="section-label">
+                <i class="fa-solid fa-layer-group"></i> Question Types
+            </div>
+            <h2 class="section-title">Two modes of practice</h2>
+            <p class="section-sub">Pick the format that fits your study style.</p>
+        </div>
+
+        <div class="types-grid">
+
+            <div class="type-card type-qa">
+                <div class="type-badge">Q&A MODE</div>
+                <h3>Questions & Answers</h3>
+                <p>Get numbered questions with detailed answers and explanations. Perfect for deep learning and interview simulation.</p>
+                <ul class="type-list">
+                    <li><i class="fa-solid fa-check-circle"></i> Detailed written answers</li>
+                    <li><i class="fa-solid fa-check-circle"></i> Concept explanations included</li>
+                    <li><i class="fa-solid fa-check-circle"></i> Toggle to reveal answers</li>
+                    <li><i class="fa-solid fa-check-circle"></i> Great for technical rounds</li>
+                </ul>
+            </div>
+
+            <div class="type-card type-mcq">
+                <div class="type-badge">MCQ MODE</div>
+                <h3>Multiple Choice Questions</h3>
+                <p>Four-option MCQs with the correct answer highlighted and an explanation. Ideal for rapid revision and self-testing.</p>
+                <ul class="type-list">
+                    <li><i class="fa-solid fa-check-circle"></i> 4 options per question</li>
+                    <li><i class="fa-solid fa-check-circle"></i> Correct answer revealed on toggle</li>
+                    <li><i class="fa-solid fa-check-circle"></i> Explanation for every answer</li>
+                    <li><i class="fa-solid fa-check-circle"></i> Great for quick revision</li>
+                </ul>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+
+<!-- CTA -->
+<section class="cta">
+    <div class="cta-content">
+        <h2>Start your interview prep today</h2>
+        <p>Join and generate your first set of AI-powered interview questions in under a minute — completely free.</p>
+        <div class="cta-btns">
+            <a href="{% url 'register' %}" class="btn-white">
+                <i class="fa-solid fa-rocket"></i>
+                Get Started Free
+            </a>
+            <a href="{% url 'login' %}" class="btn-outline-white">
+                <i class="fa-solid fa-right-to-bracket"></i>
+                Sign In
+            </a>
+        </div>
+    </div>
+</section>
+
+
+<!-- Footer -->
+<footer>
+    <a href="#" class="footer-logo">
+        <div class="footer-logo-icon">🤖</div>
+        <span>AI Interview Generator</span>
+    </a>
+    <p>Built with Django & Google Gemini AI</p>
+    <div class="footer-links">
+        <a href="{% url 'register' %}">Register</a>
+        <a href="{% url 'login' %}">Login</a>
+    </div>
+</footer>
+
+</body>
+</html>

@@ -14,6 +14,11 @@ from django.conf import settings
 import random
 
 
+def home(request):
+    if request.user.is_authenticated:
+        return redirect("dashboard")
+    return render(request, "home.html")
+
 def send_otp(email, otp, subject="Your AI Interview – Email Verification Code"):
     send_mail(
         subject = subject,
