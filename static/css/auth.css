@@ -222,3 +222,19 @@ body::after{
     height:1px;
     background:#e2e8f0;
 }
+
+/* ================= App Footer ================= */
+ 
+
+.main{
+    min-height:calc(100vh - 0px);
+    display:flex;
+    flex-direction:column;
+}
+
+.main > .app-footer{
+    margin-top:auto;
+    padding:20px 0;
+    border-top:1px solid #e2e8f0;
+    text-align:center;
+}

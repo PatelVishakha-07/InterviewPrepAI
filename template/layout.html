@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{% block title %} InterviewPrepAI {% endblock %}</title>
+    <title>{% block title %}AI Interview{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     {% block extra_css %}{% endblock %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
@@ -64,7 +64,11 @@
             <h2>{% block page_title %}{% endblock %}</h2>
         </div>
 
-        <div class="topbar-right">            
+        <div class="topbar-right">
+
+            <div class="notification">
+                <i class="fa-regular fa-bell"></i>
+            </div>
 
             <div class="profile-dropdown">
 

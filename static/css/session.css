@@ -273,3 +273,18 @@
     .mcq-options{ grid-template-columns:1fr; padding-left:0; }
     .qa-answer-wrap,.mcq-answer-wrap{ padding-left:0; }
 }
+
+/* ================= App Footer ================= */
+ 
+.app-footer{
+    margin-top:40px;
+    padding:20px 0;
+    border-top:1px solid #e2e8f0;
+    text-align:center;
+}
+ 
+.app-footer p{
+    font-size:13px;
+    color:#94a3b8;
+    font-weight:500;
+}

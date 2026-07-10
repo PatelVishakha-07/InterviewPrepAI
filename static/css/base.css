@@ -396,18 +396,38 @@ body{
     margin-bottom:20px;
 }
 
+
 /* ================= App Footer ================= */
- 
+
 .app-footer{
     margin-top:40px;
     padding:20px 0;
     border-top:1px solid #e2e8f0;
     text-align:center;
 }
- 
+
 .app-footer p{
     font-size:13px;
     color:#94a3b8;
     font-weight:500;
 }
- 
+
+
+/* ================= Sticky Footer ================= */
+
+body{
+    min-height:100vh;
+}
+
+.main{
+    min-height:calc(100vh - 0px);
+    display:flex;
+    flex-direction:column;
+}
+
+.main > .app-footer{
+    margin-top:auto;
+    padding:20px 0;
+    border-top:1px solid #e2e8f0;
+    text-align:center;
+}
