@@ -10,11 +10,22 @@
 body{
     min-height:100vh;
     display:flex;
+    flex-direction:column;
     justify-content:center;
     align-items:center;
     background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 50%,#0f172a 100%);
     position:relative;
     overflow:hidden;
+    padding:40px 16px;
+}
+
+.auth-footer{
+    margin-top:24px;
+    font-size:12px;
+    color:rgba(255,255,255,.25);
+    text-align:center;
+    position:relative;
+    z-index:1;
 }
 
 /* Animated background blobs */
@@ -221,20 +232,4 @@ body::after{
     flex:1;
     height:1px;
     background:#e2e8f0;
-}
-
-/* ================= App Footer ================= */
- 
-
-.main{
-    min-height:calc(100vh - 0px);
-    display:flex;
-    flex-direction:column;
-}
-
-.main > .app-footer{
-    margin-top:auto;
-    padding:20px 0;
-    border-top:1px solid #e2e8f0;
-    text-align:center;
 }
